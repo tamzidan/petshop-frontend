@@ -4,7 +4,7 @@ import type {
   Product,
   Service,
   Booking,
-  AuthResponse,
+  // AuthResponse is no longer needed as we use session cookies
   LoginRequest,
   RegisterRequest,
   BookingRequest,
@@ -12,31 +12,62 @@ import type {
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+// We need the root URL for the CSRF cookie request, not the /api path
+const SANCTUM_URL = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api', '') : 'http://localhost:8000';
+
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true, // This is crucial for sending/receiving cookies
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json', // Good practice to expect JSON responses
   },
 });
 
-// Add auth token to requests
+// Add interceptor to include CSRF token from cookie in request header
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth_token');
+  // Get CSRF token from cookie
+  const token = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('XSRF-TOKEN='))
+    ?.split('=')[1];
+
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    // Decode the token (Laravel encodes it)
+    config.headers['X-XSRF-TOKEN'] = decodeURIComponent(token);
   }
+
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
 // ==================== AUTH API ====================
-export const register = async (data: RegisterRequest): Promise<AuthResponse> => {
-  const response = await api.post<AuthResponse>('/register', data);
+
+/**
+ * Fetches the CSRF cookie from Sanctum. This must be called before any state-changing requests (POST, PUT, DELETE).
+ */
+export const getCsrfCookie = async () => {
+  try {
+    // Use a separate axios call that hits the root backend URL
+    await axios.get(`${SANCTUM_URL}/sanctum/csrf-cookie`, { withCredentials: true });
+  } catch (error) {
+    console.error('Could not fetch CSRF cookie', error);
+    // It might be useful to re-throw the error to be handled by the caller
+    throw error;
+  }
+};
+
+// The login/register functions will now return the User object directly,
+// as the session is handled by cookies, not a returned token.
+export const register = async (data: RegisterRequest): Promise<User> => {
+  const response = await api.post<User>('/register', data);
   return response.data;
 };
 
-export const login = async (data: LoginRequest): Promise<AuthResponse> => {
-  const response = await api.post<AuthResponse>('/login', data);
+export const login = async (data: LoginRequest): Promise<User> => {
+  const response = await api.post<User>('/login', data);
   return response.data;
 };
 

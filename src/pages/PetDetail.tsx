@@ -133,15 +133,7 @@ const PetDetail = () => {
               {pet.services.map((service) => (
                 <Card key={service.id}>
                   <div className="aspect-video bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center">
-                    {service.image_url ? (
-                      <img
-                        src={service.image_url}
-                        alt={service.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-6xl">💆</span>
-                    )}
+                    <span className="text-6xl">💆</span>
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-800 mb-2">
