@@ -398,5 +398,6 @@ For support, email support@enhapetshop.com or open an issue on GitHub.
 ---
 
 **Built with ❤️ by the ENHA PETSHOP Team**
-#   p e t s h o p - f r o n t e n d  
+#   p e t s h o p - f r o n t e n d 
+ 
  
