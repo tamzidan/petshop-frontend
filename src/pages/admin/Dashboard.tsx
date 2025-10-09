@@ -7,6 +7,7 @@ import {
   ShoppingBag,
   Calendar,
   PawPrint,
+  Image,
   // Users,
   // TrendingUp
 } from 'lucide-react';
@@ -261,6 +262,21 @@ const Dashboard = () => {
 
         {/* Management Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Manage Sliders */}
+          <Link
+            to="/admin/sliders"
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border-t-4 border-orange-500"
+          >
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-orange-100 rounded-full p-4 mb-4">
+                <Image className="w-10 h-10 text-orange-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Manage Sliders</h3>
+              <p className="text-sm text-gray-600 mb-4">Add, edit, or remove home sliders</p>
+              <span className="text-orange-600 font-medium">Go to Sliders</span>
+            </div>
+          </Link>
+
           {/* Manage Pets */}
           <Link
             to="/admin/pets"

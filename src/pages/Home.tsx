@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { getPets, getProducts, getServices } from '../services/api';
-import type { Pet, Product, Service } from '../types';
+import { getPets, getProducts, getServices, getSliders } from '../services/api';
+import type { Pet, Product, Service, Slider } from '../types';
 import Card from '../components/Card';
 import LoadingSpinner from '../components/LoadingSpinner';
+import SliderCarousel from '../components/SliderCarousel';
 
 const Home = () => {
+  const [sliders, setSliders] = useState<Slider[]>([]);
   const [pets, setPets] = useState<Pet[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -14,12 +16,14 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [petsData, productsData, servicesData] = await Promise.all([
+        const [slidersData, petsData, productsData, servicesData] = await Promise.all([
+          getSliders(),
           getPets(),
           getProducts(),
           getServices(),
         ]);
-        setPets(petsData.slice(0, 3));
+        setSliders(slidersData);
+        setPets(petsData.slice(0, 4));
         setProducts(productsData.slice(0, 3));
         setServices(servicesData.slice(0, 3));
       } catch (error) {
@@ -36,12 +40,15 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
+      {/* Slider Carousel Section */}
+      {sliders.length > 0 && <SliderCarousel sliders={sliders} />}
+
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-300 via-primary-400 to-primary-500 text-white py-20">
+      {/* <section className="bg-gradient-to-br from-primary-300 via-primary-400 to-primary-500 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fade-in">
-              Welcome to PetShop 🐾
+              Welcome to Enha Petshop
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-primary-50">
               Everything your pet needs, all in one place
@@ -62,7 +69,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Featured Pets */}
       <section className="py-16 bg-primary-50">
@@ -75,7 +82,7 @@ const Home = () => {
               Meet our adorable companions looking for a home
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {pets.map((pet) => (
               <Card key={pet.id}>
                 <div className="aspect-video bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center">
@@ -90,15 +97,15 @@ const Home = () => {
                   )}
                 </div>
                 <div className="p-6">
-                  <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                  <h3 className="text-sm xl:text-2xl font-bold text-gray-800 mb-2">
                     {pet.name}
                   </h3>
-                  <p className="text-gray-600 mb-4 line-clamp-2">
+                  <p className="text-[8px] xl:text-2xl text-gray-600 mb-4 line-clamp-2">
                     {pet.description || 'Adorable pet waiting for you!'}
                   </p>
                   <Link
                     to={`/pets/${pet.id}`}
-                    className="inline-block bg-primary-400 text-white px-6 py-2 rounded-full font-semibold hover:bg-primary-500 transition-colors"
+                    className="text-[8px] xl:text-sm inline-block bg-primary-400 text-white px-6 py-2 rounded-full font-semibold hover:bg-primary-500 transition-colors"
                   >
                     View Details
                   </Link>

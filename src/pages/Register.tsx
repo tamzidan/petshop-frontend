@@ -41,7 +41,7 @@ export default function Register() {
     try {
       setIsLoading(true);
       await registerUser(data);
-      toast.success('Registration successful! Welcome to Petshop!');
+      toast.success('Registration successful! Welcome to Enha Petshop!');
       navigate('/');
     } catch (error: any) {
       const errorMessage =

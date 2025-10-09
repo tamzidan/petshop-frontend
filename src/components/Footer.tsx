@@ -7,7 +7,7 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-bold mb-4 flex items-center">
               <span className="text-2xl mr-2">🐾</span>
-              PetShop
+              Enha Petshop
             </h3>
             <p className="text-primary-100">
               Your trusted partner for pet care. We provide quality products and
@@ -49,7 +49,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-primary-500 mt-8 pt-6 text-center text-primary-100">
-          <p>&copy; {new Date().getFullYear()} PetShop. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Enha Petshop. All rights reserved.</p>
         </div>
       </div>
     </footer>

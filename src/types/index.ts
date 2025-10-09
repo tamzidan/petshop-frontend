@@ -90,3 +90,15 @@ export interface BookingRequest {
   booking_time: string;
   notes?: string;
 }
+
+export interface Slider {
+  id: number;
+  title: string;
+  description?: string;
+  image_url: string;
+  link_url?: string;
+  is_active: boolean;
+  order: number;
+  created_at?: string;
+  updated_at?: string;
+}

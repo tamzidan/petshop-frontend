@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import BottomNavbar from './components/BottomNavbar';
 
 // Public Pages
 import Home from './pages/Home';
@@ -29,6 +30,7 @@ import AdminPets from './pages/admin/Pets';
 import AdminProducts from './pages/admin/Products';
 import AdminServices from './pages/admin/Services';
 import AdminBookings from './pages/admin/Bookings';
+import AdminSliders from './pages/admin/Sliders';
 
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
@@ -41,7 +43,7 @@ function App() {
     <Router>
       <div className="flex flex-col min-h-screen">
         <Navbar />
-        <main className="flex-grow">
+        <main className="flex-grow pb-16">
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
@@ -69,12 +71,14 @@ function App() {
             <Route path="/admin/products" element={<AdminProducts />} />
             <Route path="/admin/services" element={<AdminServices />} />
             <Route path="/admin/bookings" element={<AdminBookings />} />
+            <Route path="/admin/sliders" element={<AdminSliders />} />
 
             {/* 404 Not Found - Must be last */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />
+        <BottomNavbar />
       </div>
     </Router>
   );

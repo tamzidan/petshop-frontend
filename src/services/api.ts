@@ -4,6 +4,7 @@ import type {
   Product,
   Service,
   Booking,
+  Slider,
   // AuthResponse is no longer needed as we use session cookies
   LoginRequest,
   RegisterRequest,
@@ -124,6 +125,12 @@ export const createBooking = async (data: BookingRequest): Promise<Booking> => {
   return response.data;
 };
 
+// ==================== SLIDERS API ====================
+export const getSliders = async (): Promise<Slider[]> => {
+  const response = await api.get<Slider[]>('/sliders');
+  return response.data;
+};
+
 // ==================== ADMIN API ====================
 
 // Admin Pets
@@ -220,6 +227,33 @@ export const adminUpdateBooking = async (id: number, status: Booking['status']):
 
 export const adminDeleteBooking = async (id: number): Promise<void> => {
   await api.delete(`/admin/bookings/${id}`);
+};
+
+// Admin Sliders
+export const adminGetSliders = async (): Promise<Slider[]> => {
+  const response = await api.get<Slider[]>('/admin/sliders');
+  return response.data;
+};
+
+export const adminCreateSlider = async (data: FormData): Promise<Slider> => {
+  const response = await api.post<Slider>('/admin/sliders', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+  return response.data;
+};
+
+export const adminUpdateSlider = async (id: number, data: FormData): Promise<Slider> => {
+  // Add _method field for Laravel method spoofing
+  data.append('_method', 'PUT');
+
+  const response = await api.post<Slider>(`/admin/sliders/${id}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+  return response.data;
+};
+
+export const adminDeleteSlider = async (id: number): Promise<void> => {
+  await api.delete(`/admin/sliders/${id}`);
 };
 
 export default api;
