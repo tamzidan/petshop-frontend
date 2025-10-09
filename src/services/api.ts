@@ -140,6 +140,9 @@ export const adminCreatePet = async (data: FormData): Promise<Pet> => {
 };
 
 export const adminUpdatePet = async (id: number, data: FormData): Promise<Pet> => {
+  // Add _method field for Laravel method spoofing
+  data.append('_method', 'PUT');
+
   const response = await api.post<Pet>(`/admin/pets/${id}`, data, {
     headers: { 'Content-Type': 'multipart/form-data' }
   });
@@ -164,6 +167,9 @@ export const adminCreateProduct = async (data: FormData): Promise<Product> => {
 };
 
 export const adminUpdateProduct = async (id: number, data: FormData): Promise<Product> => {
+  // Add _method field for Laravel method spoofing
+  data.append('_method', 'PUT');
+
   const response = await api.post<Product>(`/admin/products/${id}`, data, {
     headers: { 'Content-Type': 'multipart/form-data' }
   });
@@ -180,13 +186,20 @@ export const adminGetServices = async (): Promise<Service[]> => {
   return response.data;
 };
 
-export const adminCreateService = async (data: Partial<Service>): Promise<Service> => {
-  const response = await api.post<Service>('/admin/services', data);
+export const adminCreateService = async (data: FormData): Promise<Service> => {
+  const response = await api.post<Service>('/admin/services', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
   return response.data;
 };
 
-export const adminUpdateService = async (id: number, data: Partial<Service>): Promise<Service> => {
-  const response = await api.put<Service>(`/admin/services/${id}`, data);
+export const adminUpdateService = async (id: number, data: FormData): Promise<Service> => {
+  // Add _method field for Laravel method spoofing
+  data.append('_method', 'PUT');
+
+  const response = await api.post<Service>(`/admin/services/${id}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
   return response.data;
 };
 

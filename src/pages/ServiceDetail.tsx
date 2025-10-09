@@ -120,7 +120,15 @@ const ServiceDetail = () => {
           <div>
             <Card hover={false}>
               <div className="aspect-square bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center">
-                <span className="text-9xl">💆</span>
+                {service.image_url ? (
+                  <img
+                    src={service.image_url}
+                    alt={service.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-9xl">💆</span>
+                )}
               </div>
             </Card>
           </div>

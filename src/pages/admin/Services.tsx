@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-import { ShoppingBag, Plus, Edit2, Trash2, X } from 'lucide-react';
+import { ShoppingBag, Plus, Edit2, Trash2, X, Image as ImageIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -35,6 +35,8 @@ const Services = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
 
   const {
     register,
@@ -72,6 +74,18 @@ const Services = () => {
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const openModal = (service?: Service) => {
     if (service) {
       setEditingService(service);
@@ -81,6 +95,7 @@ const Services = () => {
         description: service.description,
         price: service.price.toString()
       });
+      setImagePreview(service.image_url || '');
     } else {
       setEditingService(null);
       reset({
@@ -89,30 +104,37 @@ const Services = () => {
         description: '',
         price: ''
       });
+      setImagePreview('');
     }
+    setImageFile(null);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingService(null);
+    setImageFile(null);
+    setImagePreview('');
     reset();
   };
 
   const onSubmit = async (data: ServiceFormData) => {
     try {
-      const serviceData = {
-        pet_id: parseInt(data.pet_id),
-        name: data.name,
-        description: data.description,
-        price: parseFloat(data.price)
-      };
+      const formData = new FormData();
+      formData.append('pet_id', data.pet_id);
+      formData.append('name', data.name);
+      formData.append('description', data.description);
+      formData.append('price', data.price);
+
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
 
       if (editingService) {
-        await adminUpdateService(editingService.id, serviceData);
+        await adminUpdateService(editingService.id, formData);
         toast.success('Service updated successfully');
       } else {
-        await adminCreateService(serviceData);
+        await adminCreateService(formData);
         toast.success('Service created successfully');
       }
 
@@ -171,7 +193,7 @@ const Services = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Services Table */}
+        {/* Services Grid */}
         {services.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-12 text-center">
             <ShoppingBag className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -185,100 +207,72 @@ const Services = () => {
             </button>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Service Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Pet Type
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Price
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {services.map((service) => (
-                    <>
-                      <tr key={service.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {service.name}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-primary-100 text-primary-800">
-                            {getPetName(service.pet_id)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-500">
-                            {service.description.substring(0, 100)}
-                            {service.description.length > 100 ? '...' : ''}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900 font-semibold">
-                            Rp {service.price.toLocaleString()}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => openModal(service)}
-                              className="text-blue-600 hover:text-blue-900"
-                            >
-                              <Edit2 className="w-5 h-5" />
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirm(service.id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              <Trash2 className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      {deleteConfirm === service.id && (
-                        <tr>
-                          <td colSpan={5} className="px-6 py-4 bg-red-50">
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm text-red-800 font-medium">
-                                Are you sure you want to delete "{service.name}"?
-                              </p>
-                              <div className="flex space-x-2">
-                                <button
-                                  onClick={() => handleDelete(service.id)}
-                                  className="px-4 py-2 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700"
-                                >
-                                  Yes, Delete
-                                </button>
-                                <button
-                                  onClick={() => setDeleteConfirm(null)}
-                                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-400"
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.map((service) => (
+              <div key={service.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="aspect-video bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center">
+                  {service.image_url ? (
+                    <img
+                      src={service.image_url}
+                      alt={service.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-6xl">💆</span>
+                  )}
+                </div>
+                <div className="p-6">
+                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-primary-100 text-primary-800 mb-2">
+                    {getPetName(service.pet_id)}
+                  </span>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{service.name}</h3>
+                  <p className="text-sm text-gray-500 mb-4 line-clamp-2">
+                    {service.description}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-bold text-primary-600">
+                      Rp {service.price.toLocaleString()}
+                    </span>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => openModal(service)}
+                        className="text-blue-600 hover:text-blue-800 p-2"
+                      >
+                        <Edit2 className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirm(service.id)}
+                        className="text-red-600 hover:text-red-800 p-2"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {deleteConfirm === service.id && (
+                    <div className="mt-4 p-4 bg-red-50 rounded-lg">
+                      <p className="text-sm text-red-800 font-medium mb-3">
+                        Are you sure you want to delete "{service.name}"?
+                      </p>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleDelete(service.id)}
+                          className="flex-1 px-4 py-2 bg-red-600 text-white rounded text-sm font-medium hover:bg-red-700"
+                        >
+                          Yes, Delete
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(null)}
+                          className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-400"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -302,6 +296,39 @@ const Services = () => {
 
             {/* Modal Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="p-6">
+              {/* Image Upload */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Service Image
+                </label>
+                <div className="flex items-center space-x-4">
+                  <div className="flex-shrink-0">
+                    {imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-32 h-32 object-cover rounded-lg"
+                      />
+                    ) : (
+                      <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <ImageIcon className="w-12 h-12 text-gray-400" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      PNG, JPG, JPEG up to 2MB
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* Pet Type */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">

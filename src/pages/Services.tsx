@@ -191,7 +191,15 @@ const Services = () => {
             {filteredServices.map((service) => (
               <Card key={service.id}>
                 <div className="aspect-video bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center">
-                  <span className="text-7xl">💆</span>
+                  {service.image_url ? (
+                    <img
+                      src={service.image_url}
+                      alt={service.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-7xl">💆</span>
+                  )}
                 </div>
                 <div className="p-6">
                   <div className="mb-2">
